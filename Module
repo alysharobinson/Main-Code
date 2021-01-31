@@ -1,0 +1,52 @@
+Imports System.IO
+Module JHG352Module1
+
+    Public Function returnBetween(ByRef Str As String, ByVal OpenStr As String, ByVal CloseStr As String, Optional ByVal TrimToClosestr As Boolean = False) As String
+        ' Given a string (str) this function returns the substring between 
+        ' the starting delimiter (OpenStr) and the ending delimiter (closestr).
+        ' You have the option to trim away the closing string (default is false)
+        ' ----------------------------------------------------------------------
+        Dim s As String = Str
+        Dim SearchStart As Integer = 0, SearchEnd As Integer = 0
+        ' both start and end strings must be in string, otherwise a null string is returned. 
+        Try
+            SearchStart = Str.IndexOf(OpenStr) + OpenStr.Length + 1
+            SearchEnd = Str.IndexOf(CloseStr, SearchStart - 1)
+            If SearchEnd - SearchStart + 1 > 0 Then
+                s = Mid(Str, SearchStart, SearchEnd - SearchStart + 1)
+                If TrimToClosestr Then
+                    Str = Str.Substring(SearchEnd)
+                End If
+            Else
+                s = ""
+            End If
+        Catch ex As Exception
+            s = ""
+        End Try
+        Return s
+    End Function
+
+    Public Function TrimUpTo(ByVal str As String, ByVal closestr As String, Optional returnCloseStr As Boolean = False) As String
+        ' this removes the first part of the string
+        ' if string not found, it returns a null string
+        ' ------------------------------------------------
+        Dim i As Integer
+
+        If closestr.Length > 0 Then
+            If str.IndexOf(closestr) > -1 Then
+                If returnCloseStr Then
+                    i = str.IndexOf(closestr)
+                    str = str.Substring(i)
+                Else
+                    i = str.IndexOf(closestr) + closestr.Length
+                    str = str.Substring(i)
+                End If
+
+            Else
+                str = ""
+            End If
+        End If
+        Return str
+    End Function
+
+End Module
