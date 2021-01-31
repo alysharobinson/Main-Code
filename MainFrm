@@ -1,0 +1,154 @@
+Option Strict On
+Imports System.Drawing.Imaging
+Imports System.IO
+Imports System.Net
+Imports System.Runtime.InteropServices
+
+Public Class frmMain
+    'Declares the Webpage variable
+    Dim Webpage As String = "Webpage.html"
+    Private Sub btnWeather_Click(sender As Object, e As EventArgs) Handles btnWeather.Click
+        'Obtains the current pressure, humidity, and temperature from wistv.com and inserts into labels
+        Dim url As String = "https://www.wistv.com/weather/"
+        Dim wc As New WebClient
+        Dim source As String = wc.DownloadString(url)
+        Dim s As String = source
+
+        lblDate.Text = Now().ToString
+        'Pressure
+        Dim a As String = "Pressure</div> <div>"
+        Dim b As String = "</div>"
+
+        Dim c As String = returnBetween(s, a, b)
+        lblPressure.Text = c
+
+        'Humidity
+        Dim d As String = "Humidity</div> <div>"
+        Dim g As String = "</div>"
+
+        Dim f As String = returnBetween(s, d, g)
+        lblHumid.Text = f
+
+        'Temp
+        Dim x As String = Chr(34)
+        Dim y As String = "data-temp-f"
+
+
+        Dim z As String = TrimUpTo(s, y)
+        Dim r As String = returnBetween(z, x, x)
+        lblTemp.Text = r
+        lblF.Text = "°F"
+    End Sub
+
+    Private Sub btnStock_Click(sender As Object, e As EventArgs) Handles btnStock.Click
+        'Obtains the stock from the ticker entered and inserts into labels
+        lblName.Text = " "
+        lblPrice.Text = " "
+        lblRatio.Text = " "
+
+        Dim x As String
+
+        x = txtTicker.Text
+        Dim url As String = "https://finance.yahoo.com/quote" & "/" & x
+        Dim wc As New WebClient
+
+        Dim source As String = wc.DownloadString(url)
+        Dim s As String = source
+
+        'Ticker check
+
+        Dim q As String = "<span data-reactid=" & Chr(34) & "6" & Chr(34)
+        Dim r As String = ">"
+        Dim t As String = "</span>"
+        Dim u As String = TrimUpTo(s, q)
+        Dim v As String = returnBetween(u, r, t)
+
+        'Determines if the ticker is vaild or not by using the word "ALL"
+
+        If Not v = "All" Then
+            lblName.Text = "Ticker Does Not Exist"
+        Else
+            'Price
+            Dim a As String = "Fz(36px) Mb(-4px) D(ib)"
+            Dim b As String = "</span>"
+            Dim c As String = ">"
+            Dim d As String = TrimUpTo(s, a)
+            Dim f As String = returnBetween(d, c, b)
+            lblPrice.Text = f
+
+            'Ratio
+            Dim g As String = "data-reactid=" & Chr(34) & "149"
+            Dim h As String = ">"
+            Dim i As String = "</span>"
+            Dim j As String = TrimUpTo(s, g)
+            Dim k As String = returnBetween(j, h, i)
+            lblRatio.Text = k
+
+            'Name
+            Dim l As String = "D(ib) Fz(18px)"
+            Dim m As String = ">"
+            Dim n As String = "</h1>"
+            Dim o As String = TrimUpTo(s, l)
+            Dim p As String = returnBetween(o, m, n)
+            lblName.Text = p
+
+        End If
+    End Sub
+
+    Private Sub btnAbout_Click(sender As Object, e As EventArgs) Handles btnAbout.Click
+        'shows the aboutbox
+        frmAbout.Show()
+    End Sub
+
+    Private Sub btnCreate_Click(sender As Object, e As EventArgs) Handles btnCreate.Click
+        'creates a webpage based on the data loaded on the app
+        Dim sw As StreamWriter
+        Dim s As String
+
+        sw = File.CreateText(Webpage)
+
+        sw.WriteLine("<!DOCTYPE html>")
+        sw.WriteLine("<html>")
+        sw.WriteLine("<head>")
+        sw.WriteLine("<style>")
+        sw.WriteLine("body{border-style: dotted;}")
+        sw.WriteLine("h2{color: white;}")
+        sw.WriteLine("h1{color: white;}")
+        sw.WriteLine("body{background-color: lightblue;}")
+        sw.WriteLine("p{font-size: 20px;")
+        sw.WriteLine("</style>")
+        sw.WriteLine("</head>")
+        sw.WriteLine("<h1> Alysha Robinson </h1>")
+        sw.WriteLine("<p>This is a webpage created to show the current weather in Columbia as well as the desired stock price and change. This webpage was created using visual studio using File.IO and Parsing skills.</p>")
+        sw.WriteLine("<h2>Columbia Weather</h2>")
+        sw.WriteLine("<table> <tr> <td> Temperature" & "<td>" & lblTemp.Text)
+        sw.WriteLine(" <tr> <td> Pressure" & "<td>" & lblPressure.Text)
+        sw.WriteLine(" <tr> <td> Humidity" & "<td>" & lblHumid.Text & "</table>")
+        sw.WriteLine("<h2>Stock Prices</h2>")
+        sw.WriteLine("<h3>" & lblName.Text & "<h3>")
+        sw.WriteLine("<table> <tr> <td> Ticker" & "<td>" & txtTicker.Text)
+        sw.WriteLine(" <tr> <td> Price" & "<td>" & lblPrice.Text)
+        sw.WriteLine(" <tr> <td> PE Ratio" & "<td>" & lblRatio.Text & "</table>")
+        sw.WriteLine("<p>" & Now() & "</p>")
+        sw.WriteLine("</body>")
+        sw.WriteLine("</html>")
+        sw.Close()
+
+        'Checks if webpage exists before loading into web browser
+        If File.Exists(Webpage) Then
+            frmView.ViewWeb.Url = New Uri("file:///" & Application.StartupPath & "/" & Webpage)
+        End If
+        lblStatus.Text = "Webpage was created"
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles btnView.Click
+        'Shows the form with webbrowser
+        frmView.Show()
+    End Sub
+
+    Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
+        'closes the application
+        Me.Close()
+        Application.Exit()
+    End Sub
+End Class
